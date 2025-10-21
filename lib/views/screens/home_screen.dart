@@ -62,7 +62,10 @@ class HomeScreen extends StatelessWidget {
                   color: Colors.blueAccent.withOpacity(0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.check_circle_outline, color: Colors.blueAccent),
+                child: const Icon(
+                  Icons.check_circle_outline,
+                  color: Colors.blueAccent,
+                ),
               ),
               title: Text(
                 task['title']!,
@@ -74,10 +77,7 @@ class HomeScreen extends StatelessWidget {
               ),
               subtitle: Text(
                 task['subtitle']!,
-                style: const TextStyle(
-                  color: Color(0xFF8F9BB3),
-                  fontSize: 13,
-                ),
+                style: const TextStyle(color: Color(0xFF8F9BB3), fontSize: 13),
               ),
               trailing: const Icon(Icons.more_vert, color: Color(0xFF8F9BB3)),
             ),
@@ -105,6 +105,21 @@ class _AddTaskSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final TextEditingController _taskController = TextEditingController();
+    final TextEditingController _descriptionController =
+        TextEditingController();
+    void addTask() {
+      if (_formKey.currentState!.validate()) {}
+    }
+
+    void addTaskButton() {
+      print("Form is being submitted");
+      if(_formKey.currentState!.validate()){
+        print ("Task:${_taskController.text}");
+        print("DEscription:${_descriptionController.text}");
+      }
+    }
+
     return DraggableScrollableSheet(
       initialChildSize: 0.45,
       minChildSize: 0.35,
@@ -150,6 +165,16 @@ class _AddTaskSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 TextFormField(
+                  controller: _taskController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Please fill the task";
+                    }
+                    if (value.length > 20) {
+                      return "Maximum 30 words";
+                    }
+                    return null;
+                  },
                   decoration: InputDecoration(
                     labelText: "Task Title",
                     border: OutlineInputBorder(
@@ -161,6 +186,20 @@ class _AddTaskSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
+                  controller: _descriptionController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Enter the description";
+                    }
+                    if (value.length < 10) {
+                      return 'Description must be at least 10 characters long';
+                    }
+                    if (value.length > 500) {
+                      return 'Description cannot exceed 500 characters';
+                    }
+                    return null; // means valid
+                  },
+
                   decoration: InputDecoration(
                     labelText: "Description",
                     border: OutlineInputBorder(
@@ -175,7 +214,9 @@ class _AddTaskSheet extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      addTaskButton();
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
                       padding: const EdgeInsets.symmetric(vertical: 16),
