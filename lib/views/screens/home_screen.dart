@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:simple_todo/%20models/todo.dart';
+import 'package:simple_todo/controllers/todo_provider.dart';
+import 'package:uuid/uuid.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -109,7 +113,37 @@ class _AddTaskSheet extends StatelessWidget {
     final TextEditingController _descriptionController =
         TextEditingController();
     void addTask() {
-      if (_formKey.currentState!.validate()) {}
+      if (_formKey.currentState!.validate()) {
+        print("form is validated");
+        final String title = _taskController.text;
+        final String description = _descriptionController.text;
+        print("========================================");
+        print("========================================");
+        print("========================================");
+        print("Title => $title");
+        print("Description => $description");
+        print("========================================");
+        print("========================================");
+        print("========================================");
+
+        final uuid = Uuid();
+        final id = uuid.v4();
+        print(id);
+
+        final date = DateTime.now();
+
+        final Todo todo = Todo(
+          title: title,
+          description: description,
+          id: id,
+          created_at: date,
+          isCompleted: false,
+        );
+
+
+        final todoProvider = Provider.of<TodoProvider>(context, listen: false);
+        todoProvider.saveTodo(todo);
+      }
     }
 
     return DraggableScrollableSheet(
@@ -179,7 +213,13 @@ class _AddTaskSheet extends StatelessWidget {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _descriptionController,
-                  validator: (value) {},
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Please fill the task";
+                    }
+
+                    return null;
+                  },
                   decoration: InputDecoration(
                     labelText: "Description",
                     border: OutlineInputBorder(
@@ -195,7 +235,7 @@ class _AddTaskSheet extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      _AddTaskSheet();
+                      addTask();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
