@@ -105,6 +105,13 @@ class _AddTaskSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final TextEditingController _taskController = TextEditingController();
+    final TextEditingController _descriptionController =
+        TextEditingController();
+    void addTask() {
+      if (_formKey.currentState!.validate()) {}
+    }
+
     return DraggableScrollableSheet(
       initialChildSize: 0.45,
       minChildSize: 0.35,
@@ -150,6 +157,16 @@ class _AddTaskSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 TextFormField(
+                  controller: _taskController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Please fill the task";
+                    }
+                    if (value.length > 20) {
+                      return "Maximum 20 words";
+                    }
+                    return null;
+                  },
                   decoration: InputDecoration(
                     labelText: "Task Title",
                     border: OutlineInputBorder(
@@ -161,6 +178,8 @@ class _AddTaskSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
+                  controller: _descriptionController,
+                  validator: (value) {},
                   decoration: InputDecoration(
                     labelText: "Description",
                     border: OutlineInputBorder(
