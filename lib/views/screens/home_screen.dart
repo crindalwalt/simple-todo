@@ -142,7 +142,19 @@ class _AddTaskSheet extends StatelessWidget {
 
 
         final todoProvider = Provider.of<TodoProvider>(context, listen: false);
-        todoProvider.saveTodo(todo);
+        todoProvider.saveTodo(todo); 
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Container(
+            padding: EdgeInsets.all(8),
+            // margin: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.grey,
+              borderRadius: BorderRadius.circular(10)
+            ),
+            child: Text("Todo saved"),
+          ) ,backgroundColor: Colors.transparent,)
+        );
       }
     }
 

@@ -1,16 +1,27 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_todo/%20models/todo.dart';
 
 class TodoProvider extends ChangeNotifier {
   final List<Todo> todoList = [];
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final String todoCollection = "todos";
 
-  void saveTodo (Todo todo){
-    print("data arived in the provider");
-    print(todo.id);
 
-    todoList.add(todo);
+  Future<DocumentReference?> saveTodo (Todo todo)async{
 
-    print("todo list lenght is ");
-    print(todoList.length);
+    try{
+      final savingTodo = await _firestore.collection(todoCollection).add({
+        "title" : todo.title,
+        "description" : todo.description,
+        "created_at" : FieldValue.serverTimestamp(),
+        "isCompleted" : todo.isCompleted
+      });
+
+      return savingTodo;
+    }catch(error){
+      print(error.toString());
+      return null;
+    }
   }
 }
