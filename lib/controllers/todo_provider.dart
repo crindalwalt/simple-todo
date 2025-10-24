@@ -24,4 +24,13 @@ class TodoProvider extends ChangeNotifier {
       return null;
     }
   }
+
+  Future<QuerySnapshot?> fetchTodo()async{
+    try{
+      final fetchData=await _firestore.collection("todos").get();
+      return fetchData;
+    }catch(e){
+      print(e.toString()) ;
+    }
+  }
 }

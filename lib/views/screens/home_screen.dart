@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_todo/%20models/todo.dart';
@@ -18,12 +19,16 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final getdata=Provider.of<TodoProvider>(context);
+/*
     final tasks = [
       {'title': 'Buy groceries', 'subtitle': 'Milk, Eggs, Bread'},
       {'title': 'Finish project', 'subtitle': 'Due tomorrow'},
       {'title': 'Call Alice', 'subtitle': 'Discuss the meeting'},
       {'title': 'Read a book', 'subtitle': '30 minutes'},
     ];
+    */
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
@@ -40,12 +45,21 @@ class HomeScreen extends StatelessWidget {
         ),
         centerTitle: false,
       ),
-      body: ListView.separated(
+      body: FutureBuilder(future: getdata.fetchTodo(), builder:(context,snapshot){
+        if(snapshot.connectionState==ConnectionState.waiting){
+          return CircularProgressIndicator();
+        }
+        if(snapshot.hasError|| !snapshot.hasData){
+          return Text("an error occured");
+        }
+
+        final data= snapshot.data!;
+        
+        return ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        itemCount: tasks.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        itemCount: data.docs.length,
         itemBuilder: (context, index) {
-          final task = tasks[index];
+          final todo = data.docs[index];
           return Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -72,7 +86,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               title: Text(
-                task['title']!,
+                todo['title'],
                 style: const TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 16,
@@ -80,14 +94,15 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               subtitle: Text(
-                task['subtitle']!,
+                todo['description'],
                 style: const TextStyle(color: Color(0xFF8F9BB3), fontSize: 13),
               ),
               trailing: const Icon(Icons.more_vert, color: Color(0xFF8F9BB3)),
             ),
           );
         },
-      ),
+      );
+      }),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddTaskSheet(context),
         backgroundColor: Colors.blueAccent,
