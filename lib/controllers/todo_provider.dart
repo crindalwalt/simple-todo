@@ -32,4 +32,10 @@ class TodoProvider extends ChangeNotifier {
       return null;
     }
   }
+
+  Future<void> toggleCheckbox ({required String todoId,required bool isCompleted})async{
+    final awaiting = await _firestore.collection(todoCollection).doc(todoId).update({
+      "isCompleted" : isCompleted,
+    });
+  }
 }

@@ -20,105 +20,331 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final getdata = Provider.of<TodoProvider>(context);
-    /*
-    final tasks = [
-      {'title': 'Buy groceries', 'subtitle': 'Milk, Eggs, Bread'},
-      {'title': 'Finish project', 'subtitle': 'Due tomorrow'},
-      {'title': 'Call Alice', 'subtitle': 'Discuss the meeting'},
-      {'title': 'Read a book', 'subtitle': '30 minutes'},
-    ];
-    */
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F8FA),
+      backgroundColor: Colors.black,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.black,
         title: const Text(
-          "Simple Todo",
+          "TODO",
           style: TextStyle(
-            color: Color(0xFF222B45),
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
+            color: Colors.white,
+            fontWeight: FontWeight.w300,
+            fontSize: 28,
+            letterSpacing: 4,
           ),
         ),
-        centerTitle: false,
+        centerTitle: true,
       ),
-      body: StreamBuilder(
-        stream: getdata.fetchTodo(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          }
-          if (snapshot.hasError || !snapshot.hasData) {
-            return Text("an error occured");
-          }
-
-          final data = snapshot.data!;
-          bool iscompleted = false;
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            itemCount: data.docs.length,
-            itemBuilder: (context, index) {
-              final todo = data.docs[index];
-              return Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+      body: Column(
+        children: [
+          // Dashboard Cards
+          Container(
+        height: 140,
+        margin: EdgeInsets.symmetric(vertical: 20),
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          children: [
+            // TOTAL Card
+            Container(
+          width: 160,
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(2),
+            border: Border.all(color: Colors.black, width: 2),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Icon(Icons.list_alt, color: Colors.black, size: 24),
+              Text(
+                "24",
+                style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.w300,
+              color: Colors.black,
                 ),
-                child: ListTile(
-                  leading: Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: Colors.blueAccent.withOpacity(0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Checkbox(value: todo["isCompleted"], onChanged: (value) {
-                        
-                    }),
-                  ),
-                  title: Text(
-                    todo['title'],
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                      color: Color(0xFF222B45),
-                    ),
-                  ),
-                  subtitle: Text(
-                    todo['description'],
-                    style: const TextStyle(
-                      color: Color(0xFF8F9BB3),
-                      fontSize: 13,
-                    ),
-                  ),
-                  trailing: const Icon(
-                    Icons.more_vert,
-                    color: Color(0xFF8F9BB3),
-                  ),
+              ),
+            ],
+              ),
+              Text(
+            "TOTAL",
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w300,
+              letterSpacing: 2,
+              color: Colors.black,
+            ),
+              ),
+            ],
+          ),
+            ),
+            SizedBox(width: 12),
+            // ACTIVE Card
+            Container(
+          width: 160,
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.grey[900],
+            borderRadius: BorderRadius.circular(2),
+            border: Border.all(color: Colors.black, width: 2),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Icon(Icons.pending_actions, color: Colors.white, size: 24),
+              Text(
+                "12",
+                style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.w300,
+              color: Colors.white,
                 ),
-              );
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showAddTaskSheet(context),
-        backgroundColor: Colors.blueAccent,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          "Add Task",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            ],
+              ),
+              Text(
+            "ACTIVE",
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w300,
+              letterSpacing: 2,
+              color: Colors.white,
+            ),
+              ),
+            ],
+          ),
+            ),
+            SizedBox(width: 12),
+            // DONE Card
+            Container(
+          width: 160,
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.grey[800],
+            borderRadius: BorderRadius.circular(2),
+            border: Border.all(color: Colors.black, width: 2),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Icon(Icons.check_circle, color: Colors.white, size: 24),
+              Text(
+                "12",
+                style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.w300,
+              color: Colors.white,
+                ),
+              ),
+            ],
+              ),
+              Text(
+            "DONE",
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w300,
+              letterSpacing: 2,
+              color: Colors.white,
+            ),
+              ),
+            ],
+          ),
+            ),
+            SizedBox(width: 12),
+            // PROGRESS Card
+            Container(
+          width: 160,
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.grey[700],
+            borderRadius: BorderRadius.circular(2),
+            border: Border.all(color: Colors.black, width: 2),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Icon(Icons.trending_up, color: Colors.white, size: 24),
+              Text(
+                "50%",
+                style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.w300,
+              color: Colors.white,
+                ),
+              ),
+            ],
+              ),
+              Text(
+            "PROGRESS",
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w300,
+              letterSpacing: 2,
+              color: Colors.white,
+            ),
+              ),
+            ],
+          ),
+            ),
+          ],
         ),
-        elevation: 2,
+          ),
+          
+          // StreamBuilder
+          Expanded(
+        child: StreamBuilder(
+          stream: getdata.fetchTodo(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(
+              color: Colors.white,
+              strokeWidth: 1,
+            ),
+          );
+            }
+            if (snapshot.hasError || !snapshot.hasData) {
+          return Center(
+            child: Text(
+              "An error occurred",
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          );
+            }
+
+            final data = snapshot.data!;
+            
+            if (data.docs.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+            Icon(Icons.check_circle_outline, size: 80, color: Colors.grey[800]),
+            SizedBox(height: 16),
+            Text(
+              "No tasks yet",
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 18,
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+              ],
+            ),
+          );
+            }
+
+            return ListView.builder(
+          padding: const EdgeInsets.all(20),
+          itemCount: data.docs.length,
+          itemBuilder: (context, index) {
+            final todo = data.docs[index];
+            return Container(
+              margin: EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(2),
+            border: Border.all(color: Colors.grey[900]!, width: 1),
+              ),
+              child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {},
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                getdata.toggleCheckbox(
+                  todoId: todo.id,
+                  isCompleted: !todo["isCompleted"],
+                );
+                  },
+                  child: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: todo["isCompleted"] ? Colors.black : Colors.white,
+                  border: Border.all(color: Colors.black, width: 2),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+                child: todo["isCompleted"]
+                    ? Icon(Icons.check, color: Colors.white, size: 16)
+                    : null,
+                  ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    todo['title'],
+                    style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                  color: Colors.black,
+                  decoration: todo["isCompleted"]
+                      ? TextDecoration.lineThrough
+                      : TextDecoration.none,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    todo['description'],
+                    style: TextStyle(
+                  color: Colors.grey[700],
+                  fontSize: 13,
+                  fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                ],
+                  ),
+                ),
+                Icon(Icons.more_horiz, color: Colors.black, size: 20),
+              ],
+                ),
+              ),
+            ),
+              ),
+            );
+          },
+            );
+          },
+        ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddTaskSheet(context),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(2),
+          side: BorderSide(color: Colors.black, width: 2),
+        ),
+        child: Icon(Icons.add, color: Colors.black, size: 28),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
@@ -132,8 +358,8 @@ class _AddTaskSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
     final TextEditingController _taskController = TextEditingController();
-    final TextEditingController _descriptionController =
-        TextEditingController();
+    final TextEditingController _descriptionController = TextEditingController();
+    
     void addTask() {
       if (_formKey.currentState!.validate()) {
         print("form is validated");
@@ -168,129 +394,143 @@ class _AddTaskSheet extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Container(
-              padding: EdgeInsets.all(8),
-              // margin: EdgeInsets.all(8),
+              padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.grey,
-                borderRadius: BorderRadius.circular(10),
+                color: Colors.black,
+                border: Border.all(color: Colors.white, width: 1),
               ),
-              child: Text("Todo saved"),
+              child: Text(
+                "Task added successfully",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w300),
+              ),
             ),
             backgroundColor: Colors.transparent,
+            elevation: 0,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
     }
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.45,
+      initialChildSize: 0.5,
       minChildSize: 0.35,
       maxChildSize: 0.8,
       builder: (context, scrollController) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 16,
-              offset: Offset(0, -4),
-            ),
-          ],
+          border: Border(top: BorderSide(color: Colors.black, width: 2)),
         ),
         child: SingleChildScrollView(
           controller: scrollController,
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    margin: const EdgeInsets.only(bottom: 24),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(2),
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 50,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 32),
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                      ),
                     ),
                   ),
-                ),
-                const Text(
-                  "Add New Task",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: Color(0xFF222B45),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                TextFormField(
-                  controller: _taskController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Please fill the task";
-                    }
-                    if (value.length > 20) {
-                      return "Maximum 20 words";
-                    }
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    labelText: "Task Title",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  const Text(
+                    "NEW TASK",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w300,
+                      fontSize: 24,
+                      color: Colors.black,
+                      letterSpacing: 3,
                     ),
-                    filled: true,
-                    fillColor: const Color(0xFFF7F8FA),
                   ),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _descriptionController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Please fill the task";
-                    }
-
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    labelText: "Description",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    filled: true,
-                    fillColor: const Color(0xFFF7F8FA),
-                  ),
-                  maxLines: 2,
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      addTask();
+                  const SizedBox(height: 32),
+                  TextFormField(
+                    controller: _taskController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please fill the task";
+                      }
+                      if (value.length > 20) {
+                        return "Maximum 20 words";
+                      }
+                      return null;
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    decoration: InputDecoration(
+                      labelText: "Title",
+                      labelStyle: TextStyle(
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w300,
                       ),
-                    ),
-                    child: const Text(
-                      "Add Task",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey[400]!),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 2),
+                      ),
+                      errorBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red[300]!),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 24),
+                  TextFormField(
+                    controller: _descriptionController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please fill the task";
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                      labelText: "Description",
+                      labelStyle: TextStyle(
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w300,
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey[400]!),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 2),
+                      ),
+                      errorBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red[300]!),
+                      ),
+                    ),
+                    maxLines: 3,
+                  ),
+                  const SizedBox(height: 40),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: addTask,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      child: const Text(
+                        "ADD TASK",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w300,
+                          fontSize: 14,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
