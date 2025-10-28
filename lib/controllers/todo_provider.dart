@@ -7,30 +7,29 @@ class TodoProvider extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String todoCollection = "todos";
 
-
-  Future<DocumentReference?> saveTodo (Todo todo)async{
-
-    try{
+  Future<DocumentReference?> saveTodo(Todo todo) async {
+    try {
       final savingTodo = await _firestore.collection(todoCollection).add({
-        "title" : todo.title,
-        "description" : todo.description,
-        "created_at" : FieldValue.serverTimestamp(),
-        "isCompleted" : todo.isCompleted
+        "title": todo.title,
+        "description": todo.description,
+        "created_at": FieldValue.serverTimestamp(),
+        "isCompleted": todo.isCompleted,
       });
 
       return savingTodo;
-    }catch(error){
+    } catch (error) {
       print(error.toString());
       return null;
     }
   }
 
-  Future<QuerySnapshot?> fetchTodo()async{
-    try{
-      final fetchData=await _firestore.collection("todos").get();
+  Stream<QuerySnapshot>? fetchTodo() {
+    try {
+      final fetchData = _firestore.collection("todos").snapshots();
       return fetchData;
-    }catch(e){
-      print(e.toString()) ;
+    } catch (e) {
+      print(e.toString());
+      return null;
     }
   }
 }

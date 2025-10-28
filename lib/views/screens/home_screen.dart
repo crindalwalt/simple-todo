@@ -19,9 +19,8 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    final getdata=Provider.of<TodoProvider>(context);
-/*
+    final getdata = Provider.of<TodoProvider>(context);
+    /*
     final tasks = [
       {'title': 'Buy groceries', 'subtitle': 'Milk, Eggs, Bread'},
       {'title': 'Finish project', 'subtitle': 'Due tomorrow'},
@@ -45,64 +44,72 @@ class HomeScreen extends StatelessWidget {
         ),
         centerTitle: false,
       ),
-      body: FutureBuilder(future: getdata.fetchTodo(), builder:(context,snapshot){
-        if(snapshot.connectionState==ConnectionState.waiting){
-          return CircularProgressIndicator();
-        }
-        if(snapshot.hasError|| !snapshot.hasData){
-          return Text("an error occured");
-        }
+      body: StreamBuilder(
+        stream: getdata.fetchTodo(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          }
+          if (snapshot.hasError || !snapshot.hasData) {
+            return Text("an error occured");
+          }
 
-        final data= snapshot.data!;
-        
-        return ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        itemCount: data.docs.length,
-        itemBuilder: (context, index) {
-          final todo = data.docs[index];
-          return Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: ListTile(
-              leading: Container(
-                width: 28,
-                height: 28,
+          final data = snapshot.data!;
+          bool iscompleted = false;
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            itemCount: data.docs.length,
+            itemBuilder: (context, index) {
+              final todo = data.docs[index];
+              return Container(
                 decoration: BoxDecoration(
-                  color: Colors.blueAccent.withOpacity(0.12),
-                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                child: const Icon(
-                  Icons.check_circle_outline,
-                  color: Colors.blueAccent,
+                child: ListTile(
+                  leading: Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent.withOpacity(0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Checkbox(value: todo["isCompleted"], onChanged: (value) {
+                        
+                    }),
+                  ),
+                  title: Text(
+                    todo['title'],
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: Color(0xFF222B45),
+                    ),
+                  ),
+                  subtitle: Text(
+                    todo['description'],
+                    style: const TextStyle(
+                      color: Color(0xFF8F9BB3),
+                      fontSize: 13,
+                    ),
+                  ),
+                  trailing: const Icon(
+                    Icons.more_vert,
+                    color: Color(0xFF8F9BB3),
+                  ),
                 ),
-              ),
-              title: Text(
-                todo['title'],
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                  color: Color(0xFF222B45),
-                ),
-              ),
-              subtitle: Text(
-                todo['description'],
-                style: const TextStyle(color: Color(0xFF8F9BB3), fontSize: 13),
-              ),
-              trailing: const Icon(Icons.more_vert, color: Color(0xFF8F9BB3)),
-            ),
+              );
+            },
           );
         },
-      );
-      }),
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddTaskSheet(context),
         backgroundColor: Colors.blueAccent,
@@ -155,20 +162,22 @@ class _AddTaskSheet extends StatelessWidget {
           isCompleted: false,
         );
 
-
         final todoProvider = Provider.of<TodoProvider>(context, listen: false);
-        todoProvider.saveTodo(todo); 
+        todoProvider.saveTodo(todo);
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Container(
-            padding: EdgeInsets.all(8),
-            // margin: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey,
-              borderRadius: BorderRadius.circular(10)
+          SnackBar(
+            content: Container(
+              padding: EdgeInsets.all(8),
+              // margin: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.grey,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text("Todo saved"),
             ),
-            child: Text("Todo saved"),
-          ) ,backgroundColor: Colors.transparent,)
+            backgroundColor: Colors.transparent,
+          ),
         );
       }
     }

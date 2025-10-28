@@ -14,29 +14,37 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   // Form key for validation
   final _formKey = GlobalKey<FormState>();
+  bool isLoading = false;
 
   // Controllers for input fields
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _register()async {
+  void _register() async {
     if (_formKey.currentState!.validate()) {
-      final auth=Provider.of<AuthenticationProvider>(context,listen: false);
-      final bool register=await auth.registerToAccount(name: _nameController.text, email: _emailController.text, password: _passwordController.text);
-      if(register){
-        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>HomeScreen()));
-        ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registration Successful')),
+       setState(() {
+        isLoading = true;
+      });
+      final auth = Provider.of<AuthenticationProvider>(context, listen: false);
+      final bool register = await auth.registerToAccount(
+        name: _nameController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
       );
-        
+     
+      if (register) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Registration Successful')));
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Registration Successful')));
       }
-      else{
-        ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registration Successful')),
-      );
-      }
-
     }
   }
 
@@ -154,10 +162,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      "Register",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
+                    child: isLoading
+                        ? CircularProgressIndicator()
+                        : Text(
+                            "Register",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
 
@@ -166,7 +179,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 // Go to Login
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>LoginScreen()));
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                    );
                   },
                   child: const Text(
                     "Already have an account? Login",

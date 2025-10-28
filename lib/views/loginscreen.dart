@@ -14,26 +14,34 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   // Form key for validation
   final _formKey = GlobalKey<FormState>();
+  bool isLoading = false;
 
   // Controllers for input fields
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _login() async{
+  void _login() async {
     if (_formKey.currentState!.validate()) {
-      final auth=Provider.of<AuthenticationProvider>(context,listen: false);
-      final bool login =await auth.loginToAccount(email: _emailController.text, password: _passwordController.text);
-      if(login){
-        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>HomeScreen()));
-        ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registration Successful')),
+      setState(() {
+        isLoading = true;
+      });
+      final auth = Provider.of<AuthenticationProvider>(context, listen: false);
+      final bool login = await auth.loginToAccount(
+        email: _emailController.text,
+        password: _passwordController.text,
       );
-        
-      }
-      else{
-        ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login Failed')),
-      );
+
+      if (login) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Registration Successful')));
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Login Failed')));
       }
     }
   }
@@ -128,10 +136,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      "Login",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
+                    child: isLoading
+                        ? CircularProgressIndicator()
+                        : Text(
+                            "Login",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -139,7 +152,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Go to Login
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>RegisterScreen()));
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => RegisterScreen()),
+                    );
                   },
                   child: const Text(
                     "Don't have an account? Register",
