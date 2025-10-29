@@ -49,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blueAccent, // Accent blue background
+      backgroundColor: const Color.fromARGB(255, 1, 9, 22), // Accent blue background
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -130,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: _login,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      foregroundColor: Colors.blueAccent,
+                      foregroundColor: const Color.fromARGB(255, 1, 5, 11),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),

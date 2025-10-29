@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_todo/%20models/todo.dart';
@@ -40,299 +42,380 @@ class HomeScreen extends StatelessWidget {
       body: Column(
         children: [
           // Dashboard Cards
-          Container(
-        height: 140,
-        margin: EdgeInsets.symmetric(vertical: 20),
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          children: [
-            // TOTAL Card
-            Container(
-          width: 160,
-          padding: EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(2),
-            border: Border.all(color: Colors.black, width: 2),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Icon(Icons.list_alt, color: Colors.black, size: 24),
-              Text(
-                "24",
-                style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.w300,
-              color: Colors.black,
+          StreamBuilder(
+            stream: getdata.fetchTodo(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 1,
+                  ),
+                );
+              }
+
+              // 🟢 Handle no data
+              if (!snapshot.hasData || snapshot.data == null) {
+                return const Center(
+                  child: Text(
+                    "No data available",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                );
+              }
+              final docs = snapshot.data!.docs;
+
+              // 🟢 Handle empty collection
+              if (docs.isEmpty) {
+                return const Center(
+                  child: Text(
+                    "No tasks yet",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                );
+              }
+              final totalCount = snapshot.data?.docs.length;
+
+              final activeCount = snapshot.data?.docs
+                  .where((doc) => doc['isCompleted'] == false)
+                  .length;
+              final doneCount = snapshot.data?.docs
+                  .where((doc) => doc['isCompleted'] == true)
+                  .length;
+              String done = doneCount.toString();
+              final progressCount = totalCount == 0
+                  ? 0
+                  : (doneCount! / (totalCount)! * 100);
+              final progress = "${progressCount.toString()}%";
+              return Container(
+                height: 140,
+                margin: EdgeInsets.symmetric(vertical: 20),
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  children: [
+                    // TOTAL Card
+                    Container(
+                      width: 160,
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.black, width: 2),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Icon(
+                                Icons.list_alt,
+                                color: Colors.black,
+                                size: 24,
+                              ),
+                              Text(
+                                "$totalCount",
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w300,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            "TOTAL",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w300,
+                              letterSpacing: 2,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    // ACTIVE Card
+                    Container(
+                      width: 160,
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[900],
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.black, width: 2),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Icon(
+                                Icons.pending_actions,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                              Text(
+                                "$activeCount",
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w300,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            "ACTIVE",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w300,
+                              letterSpacing: 2,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    // DONE Card
+                    Container(
+                      width: 160,
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[800],
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.black, width: 2),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                              Text(
+                                done,
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w300,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            "DONE",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w300,
+                              letterSpacing: 2,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    // PROGRESS Card
+                    Container(
+                      width: 160,
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[700],
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.black, width: 2),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Icon(
+                                Icons.trending_up,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                              Text(
+                                progress,
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w300,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            "PROGRESS",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w300,
+                              letterSpacing: 2,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-              ),
-              Text(
-            "TOTAL",
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w300,
-              letterSpacing: 2,
-              color: Colors.black,
-            ),
-              ),
-            ],
+              );
+            },
           ),
-            ),
-            SizedBox(width: 12),
-            // ACTIVE Card
-            Container(
-          width: 160,
-          padding: EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.grey[900],
-            borderRadius: BorderRadius.circular(2),
-            border: Border.all(color: Colors.black, width: 2),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Icon(Icons.pending_actions, color: Colors.white, size: 24),
-              Text(
-                "12",
-                style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.w300,
-              color: Colors.white,
-                ),
-              ),
-            ],
-              ),
-              Text(
-            "ACTIVE",
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w300,
-              letterSpacing: 2,
-              color: Colors.white,
-            ),
-              ),
-            ],
-          ),
-            ),
-            SizedBox(width: 12),
-            // DONE Card
-            Container(
-          width: 160,
-          padding: EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.grey[800],
-            borderRadius: BorderRadius.circular(2),
-            border: Border.all(color: Colors.black, width: 2),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Icon(Icons.check_circle, color: Colors.white, size: 24),
-              Text(
-                "12",
-                style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.w300,
-              color: Colors.white,
-                ),
-              ),
-            ],
-              ),
-              Text(
-            "DONE",
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w300,
-              letterSpacing: 2,
-              color: Colors.white,
-            ),
-              ),
-            ],
-          ),
-            ),
-            SizedBox(width: 12),
-            // PROGRESS Card
-            Container(
-          width: 160,
-          padding: EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.grey[700],
-            borderRadius: BorderRadius.circular(2),
-            border: Border.all(color: Colors.black, width: 2),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Icon(Icons.trending_up, color: Colors.white, size: 24),
-              Text(
-                "50%",
-                style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.w300,
-              color: Colors.white,
-                ),
-              ),
-            ],
-              ),
-              Text(
-            "PROGRESS",
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w300,
-              letterSpacing: 2,
-              color: Colors.white,
-            ),
-              ),
-            ],
-          ),
-            ),
-          ],
-        ),
-          ),
-          
+
           // StreamBuilder
           Expanded(
-        child: StreamBuilder(
-          stream: getdata.fetchTodo(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(
-              color: Colors.white,
-              strokeWidth: 1,
-            ),
-          );
-            }
-            if (snapshot.hasError || !snapshot.hasData) {
-          return Center(
-            child: Text(
-              "An error occurred",
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-          );
-            }
+            child: StreamBuilder(
+              stream: getdata.fetchTodo(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 1,
+                    ),
+                  );
+                }
+                if (snapshot.hasError || !snapshot.hasData) {
+                  return Center(
+                    child: Text(
+                      "An error occurred",
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                  );
+                }
 
-            final data = snapshot.data!;
-            
-            if (data.docs.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-            Icon(Icons.check_circle_outline, size: 80, color: Colors.grey[800]),
-            SizedBox(height: 16),
-            Text(
-              "No tasks yet",
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 18,
-                fontWeight: FontWeight.w300,
-              ),
-            ),
-              ],
-            ),
-          );
-            }
+                final data = snapshot.data!;
 
-            return ListView.builder(
-          padding: const EdgeInsets.all(20),
-          itemCount: data.docs.length,
-          itemBuilder: (context, index) {
-            final todo = data.docs[index];
-            return Container(
-              margin: EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(2),
-            border: Border.all(color: Colors.grey[900]!, width: 1),
-              ),
-              child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {},
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                getdata.toggleCheckbox(
-                  todoId: todo.id,
-                  isCompleted: !todo["isCompleted"],
-                );
+                if (data.docs.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.check_circle_outline,
+                          size: 80,
+                          color: Colors.grey[800],
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          "No tasks yet",
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 18,
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: data.docs.length,
+                  itemBuilder: (context, index) {
+                    final todo = data.docs[index];
+                    return Container(
+                      margin: EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(color: Colors.grey[900]!, width: 1),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {},
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    getdata.toggleCheckbox(
+                                      todoId: todo.id,
+                                      isCompleted: !todo["isCompleted"],
+                                    );
+                                  },
+                                  child: Container(
+                                    width: 24,
+                                    height: 24,
+                                    decoration: BoxDecoration(
+                                      color: todo["isCompleted"]
+                                          ? Colors.black
+                                          : Colors.white,
+                                      border: Border.all(
+                                        color: Colors.black,
+                                        width: 2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                    child: todo["isCompleted"]
+                                        ? Icon(
+                                            Icons.check,
+                                            color: Colors.white,
+                                            size: 16,
+                                          )
+                                        : null,
+                                  ),
+                                ),
+                                SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        todo['title'],
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 16,
+                                          color: Colors.black,
+                                          decoration: todo["isCompleted"]
+                                              ? TextDecoration.lineThrough
+                                              : TextDecoration.none,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        todo['description'],
+                                        style: TextStyle(
+                                          color: Colors.grey[700],
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w300,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.more_horiz,
+                                  color: Colors.black,
+                                  size: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
                   },
-                  child: Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: todo["isCompleted"] ? Colors.black : Colors.white,
-                  border: Border.all(color: Colors.black, width: 2),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-                child: todo["isCompleted"]
-                    ? Icon(Icons.check, color: Colors.white, size: 16)
-                    : null,
-                  ),
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    todo['title'],
-                    style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 16,
-                  color: Colors.black,
-                  decoration: todo["isCompleted"]
-                      ? TextDecoration.lineThrough
-                      : TextDecoration.none,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    todo['description'],
-                    style: TextStyle(
-                  color: Colors.grey[700],
-                  fontSize: 13,
-                  fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                ],
-                  ),
-                ),
-                Icon(Icons.more_horiz, color: Colors.black, size: 20),
-              ],
-                ),
-              ),
+                );
+              },
             ),
-              ),
-            );
-          },
-            );
-          },
-        ),
           ),
         ],
       ),
@@ -356,10 +439,13 @@ class _AddTaskSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    final userId = user?.uid;
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
     final TextEditingController _taskController = TextEditingController();
-    final TextEditingController _descriptionController = TextEditingController();
-    
+    final TextEditingController _descriptionController =
+        TextEditingController();
+
     void addTask() {
       if (_formKey.currentState!.validate()) {
         print("form is validated");
@@ -386,6 +472,7 @@ class _AddTaskSheet extends StatelessWidget {
           id: id,
           created_at: date,
           isCompleted: false,
+          userid: userId!,
         );
 
         final todoProvider = Provider.of<TodoProvider>(context, listen: false);
@@ -401,7 +488,10 @@ class _AddTaskSheet extends StatelessWidget {
               ),
               child: Text(
                 "Task added successfully",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w300),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w300,
+                ),
               ),
             ),
             backgroundColor: Colors.transparent,
@@ -435,9 +525,7 @@ class _AddTaskSheet extends StatelessWidget {
                       width: 50,
                       height: 4,
                       margin: const EdgeInsets.only(bottom: 32),
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                      ),
+                      decoration: BoxDecoration(color: Colors.black),
                     ),
                   ),
                   const Text(
